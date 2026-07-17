@@ -34,33 +34,31 @@ class Trainer(object):
         # print(f'Environment: {self.config.env}, Algorithm: {self.agent_name}, Seed: {self.config.seed}, Device: {self.config.device}')
         # print('---------------------------------------')
 
-        self._warm_up_data()
-
         if self.agent_name in ['DQN']:
             self._train_per_single_step()
         elif self.agent_name in ['A2C']:
             self._train_per_single_episode()
     
-    def _warm_up_data(self):
-        init_controller = InitCtrl()
-        init_controller.set_controller = self.env.init_controller
-
-        for epi in range(self.warm_up_episode):
-            init_controller.reset()
-            s, a = self.env.reset()
-
-            for step in range(self.nT):
-                o = self.env.get_observ(s, a)
-                a = init_controller.ctrl(o)
-
-                a = self.env.scale(a, self.env.umin, self.env.umax)
-
-                s2, r, is_term, derivs = self.env.step(s, a)
-                self.agent.add_experience((s, a, r, s2, is_term, derivs))
-
-                self.agent.warm_up_train()
-
-                s = s2
+    # def _warm_up_data(self):
+    #     init_controller = InitCtrl()
+    #     init_controller.set_controller = self.env.init_controller
+    #
+    #     for epi in range(self.warm_up_episode):
+    #         init_controller.reset()
+    #         s, a = self.env.reset()
+    #
+    #         for step in range(self.nT):
+    #             o = self.env.get_observ(s, a)
+    #             a = init_controller.ctrl(o)
+    #
+    #             a = self.env.scale(a, self.env.umin, self.env.umax)
+    #
+    #             s2, r, is_term, derivs = self.env.step(s, a)
+    #             self.agent.add_experience((s, a, r, s2, is_term, derivs))
+    #
+    #             self.agent.warm_up_train()
+    #
+    #             s = s2
 
     def _train_per_single_step(self):
         for epi in range(self.max_episode):
