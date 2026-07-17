@@ -2,7 +2,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from RLcodes.utility.pid import PID
 from RLcodes.utility.custom_init_ctrl import InitCtrl
 
 
@@ -37,22 +36,14 @@ class Trainer(object):
 
         self._warm_up_data()
 
-        if self.agent_name in ['DQN', 'QRDQN', 'DDPG', 'TD3', 'SAC', 'GDHP']:
+        if self.agent_name in ['DQN']:
             self._train_per_single_step()
-        elif self.agent_name in ['A2C', 'TRPO', 'PPO', 'iLQR', 'SDDP', 'PoWER']:
+        elif self.agent_name in ['A2C']:
             self._train_per_single_episode()
-        elif self.agent_name in ['REPS', 'PI2']:
-            self._train_per_multiple_episodes()
     
     def _warm_up_data(self):
-        if hasattr(self.env, 'pid_gain'):
-            init_controller = PID()
-            init_controller.set_info = {'o_dim': self.env.o_dim, 'a_dim': self.env.a_dim, 'dt': self.env.dt}
-            init_controller.set_gain = self.env.pid_gain()
-            init_controller.set_reference = self.env.scale(self.env.ref_traj(), self.env.ymin, self.env.ymax)
-        elif hasattr(self.env, 'init_controller'):
-            init_controller = InitCtrl()
-            init_controller.set_controller = self.env.init_controller
+        init_controller = InitCtrl()
+        init_controller.set_controller = self.env.init_controller
 
         for epi in range(self.warm_up_episode):
             init_controller.reset()
